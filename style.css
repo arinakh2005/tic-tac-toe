@@ -1,0 +1,89 @@
+:root {
+    --primary-violet: #DDA0DD;
+    --secondary-violet: #D8BFD8;
+}
+
+table {
+    width: 300px;
+    height: 300px;
+}
+
+table,
+th,
+td {
+    border: 1px solid black;
+    border-radius: 10px;
+    text-align: center;
+    color: transparent;
+    text-shadow: 0 0 0 black;
+}
+
+td {
+    background-color: var(--secondary-violet);
+}
+
+.cell {
+    width: 25%;
+    height: 25%;
+}
+
+.cell:hover {
+    background-color: var(--primary-violet);
+}
+
+.cell:focus {
+    cursor: none;
+}
+
+img {
+    max-width: 65px;
+}
+
+select {
+    /* Reset Select */
+    appearance: none;
+    outline: 0;
+    border: 0;
+    box-shadow: none;
+    /* Personalize */
+    flex: 1;
+    padding: 0 1em;
+    color: #fff;
+    background-color: #6C3483;
+    background-image: none;
+    cursor: pointer;
+}
+
+
+/* Remove IE arrow */
+
+select::-ms-expand {
+    display: none;
+}
+
+.select-game-mode {
+    position: relative;
+    display: flex;
+    width: 20em;
+    height: 3em;
+    border-radius: .25em;
+    overflow: hidden;
+}
+
+.select-game-mode::after {
+    content: '\25BC';
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 1em;
+    background-color: var(--primary-violet);
+    transition: .25s all ease;
+    pointer-events: none;
+}
+
+
+/* Transition */
+
+.select-game-mode:hover::after {
+    color: #f39c12;
+}
