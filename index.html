@@ -12,31 +12,24 @@
 <body>
     <h1>Будь ласка, оберіть режим гри</h1>
     <div class="select-game-mode">
-        <select id="game-mode">
+        <select id="game-mode" onchange="clearGameTable()">
           <option value="1">player VS player</option>
           <option value="2">player VS computer</option>
         </select>
     </div>
-
-    <table class="table-game">
-        <tr>
-            <td class="cell" id="cell0" onclick="doStep('cell0')"></td>
-            <td class="cell" id="cell1" onclick="doStep('cell1')"></td>
-            <td class="cell" id="cell2" onclick="doStep('cell2')"></td>
-        </tr>
-        <tr>
-            <td class="cell" id="cell3" onclick="doStep('cell3')"></td>
-            <td class="cell" id="cell4" onclick="doStep('cell4')"></td>
-            <td class="cell" id="cell5" onclick="doStep('cell5')"></td>
-        </tr>
-        <tr>
-            <td class="cell" id="cell6" onclick="doStep('cell6')"></td>
-            <td class="cell" id="cell7" onclick="doStep('cell7')"></td>
-            <td class="cell" id="cell8" onclick="doStep('cell8')"></td>
-        </tr>
-    </table>
-    <p id="player-number">Хід: гравець</p>
-
+    <h1>Оберіть розмір поля</h1>
+    <div class="select-game-area">
+        <select id="game-area" onchange="clearGameTable()">
+          <option value="3">3x3</option>
+          <option value="4">4x4</option>
+          <option value="5">5x5</option>
+        </select>
+    </div>
+    <button class="btn-start" id="btn-start" onclick="showGameArea()">Розпочати гру</button>
+    <div class="table-game" id="table-game">
+        <table class="table"></table>
+        <p id="player-number">Хід: гравець</p>
+    </div>
 </body>
 
 </html>
