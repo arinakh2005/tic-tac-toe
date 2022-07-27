@@ -1,63 +1,130 @@
-var gameCeilFilled = new Array(9);
-var gameCeil = new Array;
+'use strict'
+var gameCellFilled;
+var gameCell;
 var cross = 'cross';
 var circle = 'circle;'
 var lastRole = cross;
 var mode;
+var numberOfCellsToWin = 3;
+var size;
 var playerNumber = 2; // 0 - computer
 
+function showGameArea() {
+    const box = document.getElementsByClassName('table-game')[0];
+    box.style.visibility = 'visible';
+    let select = document.getElementById("game-area");
+    size = select.value;
+    gameCell = new Array(size * size);
+    gameCellFilled = new Array(size * size);
+    document.getElementById('btn-start').setAttribute('disabled', 'true');
+    buildGameArea(size);
+}
+
+function buildGameArea(size) {
+    const table = document.querySelector('table');
+
+    for (let i = 0; i < size; i++) {
+        const tr = document.createElement('tr');
+
+        for (let j = 0; j < size; j++) {
+            const td = document.createElement('td');
+            td.classList.add("cell");
+            let id = "cell" + ((i * size) + j);
+            td.id = id;
+            td.setAttribute('onclick', 'doStep("' +
+                id + '")');
+            tr.appendChild(td);
+        }
+        table.appendChild(tr);
+    }
+}
 
 function generateNumberOfCell(size) {
-    return id = 'cell' + Math.floor(Math.random() * size);
+    return ('cell' + Math.floor(Math.random() * size)); //return id
 }
 
 function zero(id) {
-    role = circle;
-    id = generateNumberOfCell(9);
-    if (gameCeilFilled.includes(id)) {
-        zero(generateNumberOfCell(9), role);
+    let role = circle;
+    id = generateNumberOfCell(size * size);
+    if (gameCellFilled.includes(id)) {
+        zero(generateNumberOfCell(size * size), role);
     } else {
         playerNumber = 0;
-        gameCeilFilled.push(id);
+        gameCellFilled.push(id);
         document.getElementById(id).innerHTML = '<img src="./circle.png">';;
-        let i = +(id.slice(4, 5));
-        gameCeil[i] = role;
+        let i = +(id.slice(4, 6));
+        gameCell[i] = role;
         if (checkWin()) {
             getWinnerMessage(playerNumber, 2);
             setTimeout(clearGameTable, 1000);
         }
-
     }
 }
 
-function checkWin() { //
-    if (gameCeil[0] == circle && gameCeil[1] == circle && gameCeil[2] == circle ||
-        gameCeil[0] == cross && gameCeil[1] == cross && gameCeil[2] == cross) return true;
+function checkWin() {
+    // Check for row
+    let step = 0;
+    do {
+        for (let i = size - numberOfCellsToWin - step; i < (size * size); i += numberOfCellsToWin + (size - numberOfCellsToWin)) {
+            if (gameCell[i] == circle && gameCell[i + 1] == circle && gameCell[i + 2] == circle ||
+                gameCell[i] == cross && gameCell[i + 1] == cross && gameCell[i + 2] == cross) {
+                return true;
+            }
+        }
+        step++;
+    } while (size - numberOfCellsToWin - step >= 0);
 
-    if (gameCeil[3] == circle && gameCeil[4] == circle && gameCeil[5] == circle ||
-        gameCeil[3] == cross && gameCeil[4] == cross && gameCeil[5] == cross) return true;
+    //Check for column
+    step = size - numberOfCellsToWin;
+    for (let i = 0; i < size * size; i++) {
+        if (gameCell[i] == circle && gameCell[i + numberOfCellsToWin + step] == circle && gameCell[i + 2 * (numberOfCellsToWin + step)] == circle ||
+            gameCell[i] == cross && gameCell[i + numberOfCellsToWin + step] == cross && gameCell[i + 2 * (numberOfCellsToWin + step)] == cross) {
+            return true;
+        }
+    }
 
-    if (gameCeil[6] == circle && gameCeil[7] == circle && gameCeil[8] == circle ||
-        gameCeil[6] == cross && gameCeil[7] == cross && gameCeil[8] == cross) return true;
+    //Check for diagonal
+    step = size - numberOfCellsToWin + 1;
+    for (let i = 0; i < (size * size) / 2; i++) {
+        // Main diagonal
+        let index1 = +i + +size + 1;
+        let index2 = +i + 2 * (+size + 1);
+        if (gameCell[i] == circle && gameCell[index1] == circle && gameCell[index2] == circle ||
+            gameCell[i] == cross && gameCell[index1] == cross && gameCell[index2] == cross) {
+            return true;
+        }
+    }
+    for (let i = 0; i < (size * size); i++) {
+        // Anti-diagonal
+        let index1 = i + +size - 1;
+        let index2 = i + 2 * (+size - 1);
+        if (gameCell[i] == circle && gameCell[index1] == circle && gameCell[index2] == circle ||
+            gameCell[i] == cross && gameCell[index1] == cross && gameCell[index2] == cross) {
+            return true;
+        }
+    }
 
-    if (gameCeil[0] == circle && gameCeil[3] == circle && gameCeil[6] == circle ||
-        gameCeil[0] == cross && gameCeil[3] == cross && gameCeil[6] == cross) return true;
-
-    if (gameCeil[1] == circle && gameCeil[4] == circle && gameCeil[7] == circle ||
-        gameCeil[1] == cross && gameCeil[4] == cross && gameCeil[7] == cross) return true;
-
-    if (gameCeil[2] == circle && gameCeil[5] == circle && gameCeil[8] == circle ||
-        gameCeil[2] == cross && gameCeil[5] == cross && gameCeil[8] == cross) return true;
-
-    if (gameCeil[0] == circle && gameCeil[4] == circle && gameCeil[8] == circle ||
-        gameCeil[0] == cross && gameCeil[4] == cross && gameCeil[8] == cross) return true;
-
-    if (gameCeil[2] == circle && gameCeil[4] == circle && gameCeil[6] == circle ||
-        gameCeil[2] == cross && gameCeil[4] == cross && gameCeil[6] == cross) return true;
-
-    if (gameCeil[0] && gameCeil[1] && gameCeil[2] && gameCeil[3] && gameCeil[4] && gameCeil[5] && gameCeil[6] && gameCeil[7] && gameCeil[8]) {
-        getDrawMessage();
-    };
+    // Check empty Cells
+    if (size == 3) {
+        if (gameCell[0] && gameCell[1] && gameCell[2] && gameCell[3] && gameCell[4] && gameCell[5] &&
+            gameCell[6] && gameCell[7] && gameCell[8]) {
+            getDrawMessage();
+        };
+    } else if (size == 4) {
+        if (gameCell[0] && gameCell[1] && gameCell[2] && gameCell[3] && gameCell[4] && gameCell[5] &&
+            gameCell[6] && gameCell[7] && gameCell[8] && gameCell[9] && gameCell[10] && gameCell[11] &&
+            gameCell[12] && gameCell[13] && gameCell[14] && gameCell[15]) {
+            getDrawMessage();
+        };
+    } else if (size == 5) {
+        if (gameCell[0] && gameCell[1] && gameCell[2] && gameCell[3] && gameCell[4] && gameCell[5] &&
+            gameCell[6] && gameCell[7] && gameCell[8] && gameCell[9] && gameCell[10] && gameCell[11] &&
+            gameCell[12] && gameCell[13] && gameCell[14] && gameCell[15] && gameCell[16] && gameCell[17] &&
+            gameCell[18] && gameCell[19] && gameCell[20] && gameCell[11] && gameCell[22] && gameCell[23] &&
+            gameCell[24]) {
+            getDrawMessage();
+        };
+    }
 }
 
 function doStep(id) {
@@ -78,43 +145,41 @@ function doStep(id) {
 function playPvC(id, role) {
     if (role == cross) {
         document.getElementById(id).innerHTML = '<img src="./cross.png">';
-        gameCeilFilled.push(id);
-        let i = +(id.slice(4, 5));
-        gameCeil[i] = role;
+        gameCellFilled.push(id);
+        let i = +(id.slice(4, 6));
+        gameCell[i] = role;
         playerNumber = 1;
     }
     if (checkWin()) {
         getWinnerMessage(playerNumber, 2);
-        setTimeout(clearGameTable, 1000);
+        setTimeout(clearGameTable, 500);
         return;
     }
-
     setTimeout(zero, 500, generateNumberOfCell(9));
 }
 
 function playPvP(id) {
+    let role;
     if (lastRole == cross) {
         role = circle;
         document.getElementById(id).innerHTML = '<img src="./cross.png">';
-        gameCeilFilled.push(id);
-        let i = +(id.slice(4, 5));
-        gameCeil[i] = role;
+        gameCellFilled.push(id);
+        let i = +(id.slice(4, 6));
+        gameCell[i] = role;
         lastRole = role;
         playerNumber = 1;
-
         return;
     }
     if (lastRole == circle) {
         role = cross;
         document.getElementById(id).innerHTML = '<img src="./circle.png">';
-        gameCeilFilled.push(id);
-        let i = +(id.slice(4, 5));
-        gameCeil[i] = role;
+        gameCellFilled.push(id);
+        let i = +(id.slice(4, 6));
+        gameCell[i] = role;
         lastRole = role;
         playerNumber = 2;
         return;
     }
-
 }
 
 function getWinnerMessage(playerNumber, mode) {
@@ -124,11 +189,9 @@ function getWinnerMessage(playerNumber, mode) {
         } else {
             alert("Переміг гравець!");
         }
-
     } else {
         alert("Переміг гравець " + playerNumber);
     }
-
 }
 
 function getDrawMessage() {
@@ -137,5 +200,25 @@ function getDrawMessage() {
 }
 
 function clearGameTable() {
-    location.reload();
+    let elem = document.getElementsByClassName("table")[0];
+    elem.parentNode.removeChild(elem);
+    const spaceForTableGrid = document.getElementsByClassName('table-game')[0];
+    const table = document.createElement('table');
+    table.classList.add('table');
+    spaceForTableGrid.appendChild(table);
+
+    elem = document.getElementById("player-number");
+    elem.parentNode.removeChild(elem);
+    const spaceForLabelWithPlayersNumber = document.getElementsByClassName('table-game')[0];
+    const labelWithPlayersNumber = document.createElement('p');
+    labelWithPlayersNumber.id = 'player-number';
+    labelWithPlayersNumber.textContent = "Хід: гравець";
+    spaceForLabelWithPlayersNumber.appendChild(labelWithPlayersNumber);
+
+    gameCellFilled = [];
+    gameCell = [];
+    playerNumber = 2;
+    document.getElementById('btn-start').setAttribute('disabled', 'false');
+
+    showGameArea();
 }
