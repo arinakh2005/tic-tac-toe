@@ -1,11 +1,20 @@
 :root {
     --primary-violet: #DDA0DD;
     --secondary-violet: #D8BFD8;
+    --violet: #6C3483;
+}
+
+h1 {
+    font-size: 20px;
+    color: var(--violet);
+    font-family: 'Segoe Print', cursive;
+    margin: 0 32px;
 }
 
 table {
     width: 300px;
     height: 300px;
+    margin: 1.5em 2em;
 }
 
 table,
@@ -40,22 +49,17 @@ img {
 }
 
 select {
-    /* Reset Select */
     appearance: none;
     outline: 0;
     border: 0;
     box-shadow: none;
-    /* Personalize */
     flex: 1;
     padding: 0 1em;
     color: #fff;
-    background-color: #6C3483;
+    background-color: var(--violet);
     background-image: none;
     cursor: pointer;
 }
-
-
-/* Remove IE arrow */
 
 select::-ms-expand {
     display: none;
@@ -66,6 +70,7 @@ select::-ms-expand {
     display: flex;
     width: 20em;
     height: 3em;
+    margin: 1em 2em 0;
     border-radius: .25em;
     overflow: hidden;
 }
@@ -73,17 +78,25 @@ select::-ms-expand {
 .select-game-mode::after {
     content: '\25BC';
     position: absolute;
-    top: 0;
     right: 0;
     padding: 1em;
     background-color: var(--primary-violet);
-    transition: .25s all ease;
     pointer-events: none;
 }
 
-
-/* Transition */
-
 .select-game-mode:hover::after {
-    color: #f39c12;
+    color: var(--violet);
+}
+
+#player-number {
+    margin-left: 1em;
+    max-width: 9em;
+    text-align: center;
+    text-transform: capitalize;
+    color: var(--violet);
+    font-weight: bold;
+    font-size: 32px;
+    border-width: 4px;
+    border-style: outset;
+    border-color: var(--primary-violet);
 }

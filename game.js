@@ -30,7 +30,7 @@ function zero(id) {
     }
 }
 
-function checkWin() { //
+function checkWin() {
     if (gameCeil[0] == circle && gameCeil[1] == circle && gameCeil[2] == circle ||
         gameCeil[0] == cross && gameCeil[1] == cross && gameCeil[2] == cross) return true;
 
