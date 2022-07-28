@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <script src="game.js"></script>
     <title>Tic-tac-toe</title>
 </head>
 
@@ -13,16 +12,16 @@
     <h1>Будь ласка, оберіть режим гри</h1>
     <div class="select-game-mode">
         <select id="game-mode" onchange="clearGameTable()">
-          <option value="1">player VS player</option>
-          <option value="2">player VS computer</option>
+            <option value="1">player VS player</option>
+            <option value="2">player VS computer</option>
         </select>
     </div>
     <h1>Оберіть розмір поля</h1>
     <div class="select-game-area">
         <select id="game-area" onchange="clearGameTable()">
-          <option value="3">3x3</option>
-          <option value="4">4x4</option>
-          <option value="5">5x5</option>
+            <option value="3">3x3</option>
+            <option value="4">4x4</option>
+            <option value="5">5x5</option>
         </select>
     </div>
     <div class="btn">
@@ -31,8 +30,10 @@
     </div>
     <div class="table-game" id="table-game">
         <table class="table"></table>
-        <p id="player-number">Хід: гравець</p>
+        <p id="player-number">Хід: ...</p>
     </div>
 </body>
+
+<script src="game.js"></script>
 
 </html>
