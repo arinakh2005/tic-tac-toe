@@ -53,10 +53,7 @@ function computerStep(id) {
         document.getElementById(id).innerHTML = '<img src="./circle.png">';
         let i = +(id.slice(4, 6));
         gameCell[i] = role;
-        if (checkWin()) {
-            getWinnerMessage(playerNumber, 2);
-            setTimeout(clearGameTable, 500);
-        }
+        isGameOver(playerNumber, 2);
     }
 }
 
@@ -105,8 +102,10 @@ function checkMainDiagonail(size) {
         allowableIndexes = [0, 1, 2, 5, 6, 7, 10, 11, 12];
     }
 
-    let k = 1;
-    for (let i = allowableIndexes[0]; i < size ** 2; i++) {
+    let k = 0;
+    let i = 0;
+    while (k < allowableIndexes.length) {
+        i = allowableIndexes[k];
         index1 = i + size + 1;
         index2 = i + 2 * (size + 1);
         if (gameCell[i] === circle && gameCell[index1] === circle && gameCell[index2] === circle ||
@@ -131,8 +130,10 @@ function checkAntiDiagonail(size) {
         allowableIndexes = [2, 3, 4, 7, 8, 9, 12, 13, 14];
     }
 
-    let k = 1;
-    for (let i = allowableIndexes[0]; i < size ** 2; i++) {
+    let k = 0;
+    let i = 0;
+    while (k < allowableIndexes.length) {
+        i = allowableIndexes[k];
         index1 = i + size - 1;
         index2 = i + 2 * (size - 1);
         if (gameCell[i] === circle && gameCell[index1] === circle && gameCell[index2] === circle ||
@@ -146,7 +147,7 @@ function checkAntiDiagonail(size) {
 
 function isAllCellsEmpty(arr, size) {
     let counter = 0;
-    arr.forEach(function (item) {
+    arr.forEach(function(item) {
         if (item) counter++;
     });
     if (counter == size ** 2) {
@@ -170,29 +171,30 @@ function doStep(id) {
     if (mode == 1) {
         document.getElementById('player-number').innerText = `Хід: гравець ${playerNumber}`;
         playerWithPlayerStep(id);
-        if (checkWin()) {
-            getWinnerMessage(playerNumber, mode);
-            setTimeout(clearGameTable, 500);
-        }
+        isGameOver(playerNumber, mode);
     } else if (mode == 2) {
         playerStepWithComputer(id, cross);
     }
+}
 
+function isGameOver(playerNumber, mode) {
+    if (checkWin()) {
+        setTimeout(getWinnerMessage, 200, playerNumber, mode);
+        setTimeout(clearGameTable, 500);
+        return true;
+    }
 }
 
 function playerStepWithComputer(id, role) {
     if (role == cross) {
-        document.getElementById(id).innerHTML = '<img src="./cross.png">';
+        let elem = document.getElementById(id);
+        elem.innerHTML = '<img src="./cross.png">';
         gameCellFilled.push(id);
         let i = +(id.slice(4, 6));
         gameCell[i] = role;
         playerNumber = 1;
     }
-    if (checkWin()) {
-        getWinnerMessage(playerNumber, 2);
-        setTimeout(clearGameTable, 500);
-        return;
-    }
+    if (isGameOver(playerNumber, 2)) return;
     setTimeout(computerStep, 500, generateNumberOfCell(9));
 }
 
@@ -256,6 +258,7 @@ function clearGameTable() {
     gameCellFilled = [];
     gameCell = [];
     playerNumber = 2;
+    lastRole = cross;
     document.getElementById('btn-start').setAttribute('disabled', 'false');
 
     showGameArea();
