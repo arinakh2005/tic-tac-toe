@@ -1,10 +1,11 @@
 'use strict'
 let gameCellFilled = [];
 let gameCell = [];
-const cross = 'cross';
-const circle = 'circle;'
-let lastRole = cross;
-let mode;
+const gameMark = {
+    cross: 'cross',
+    circle: 'circle'
+}
+let lastRole = gameMark.cross;
 const numberOfCellsToWin = 3;
 let size;
 let playerNumber = 2; // 0 - computer
@@ -41,7 +42,7 @@ function generateNumberOfCell(size) {
 }
 
 function computerStep(id) {
-    let role = circle;
+    let role = gameMark.circle;
     id = generateNumberOfCell(size * size);
 
     if (gameCellFilled.includes(id)) {
@@ -50,7 +51,7 @@ function computerStep(id) {
         playerNumber = 0;
         gameCellFilled.push(id);
 
-        document.getElementById(id).innerHTML = '<img src="./circle.png">';
+        document.getElementById(id).innerHTML = `<img src="./${gameMark.circle}.png">`;
         let i = +(id.slice(4, 6));
         gameCell[i] = role;
         isGameOver(playerNumber, 2);
@@ -62,8 +63,8 @@ function checkWin() {
     let step = 0;
     do {
         for (let i = size - numberOfCellsToWin - step; i < (size * size); i += numberOfCellsToWin + (size - numberOfCellsToWin)) {
-            if (gameCell[i] === circle && gameCell[i + 1] === circle && gameCell[i + 2] === circle ||
-                gameCell[i] === cross && gameCell[i + 1] === cross && gameCell[i + 2] === cross) {
+            if (gameCell[i] === gameMark.circle && gameCell[i + 1] === gameMark.circle && gameCell[i + 2] === gameMark.circle ||
+                gameCell[i] === gameMark.cross && gameCell[i + 1] === gameMark.cross && gameCell[i + 2] === gameMark.cross) {
                 return true;
             }
         }
@@ -73,32 +74,32 @@ function checkWin() {
     //Check for column
     step = size - numberOfCellsToWin;
     for (let i = 0; i < size * size; i++) {
-        if (gameCell[i] === circle && gameCell[i + numberOfCellsToWin + step] === circle && gameCell[i + 2 * (numberOfCellsToWin + step)] === circle ||
-            gameCell[i] === cross && gameCell[i + numberOfCellsToWin + step] === cross && gameCell[i + 2 * (numberOfCellsToWin + step)] === cross) {
+        if (gameCell[i] === gameMark.circle && gameCell[i + numberOfCellsToWin + step] === gameMark.circle && gameCell[i + 2 * (numberOfCellsToWin + step)] === gameMark.circle ||
+            gameCell[i] === gameMark.cross && gameCell[i + numberOfCellsToWin + step] === gameMark.cross && gameCell[i + 2 * (numberOfCellsToWin + step)] === gameMark.cross) {
             return true;
         }
     }
 
     //Check for diagonal
-    if (checkMainDiagonail(size)) return true;
-    if (checkAntiDiagonail(size)) return true;
+    if (checkMainDiagonal(size)) return true;
+    if (checkAntiDiagonal(size)) return true;
 
     // Check empty Cells
     if (isAllCellsEmpty(gameCell, size)) {
-        getDrawMessage();
+        setTimeout(getDrawMessage, 300);
     }
 }
 
-function checkMainDiagonail(size) {
+function checkMainDiagonal(size) {
     let index1;
     let index2;
     let allowableIndexes = [];
 
-    if (size == 3) {
+    if (size === 3) {
         allowableIndexes = [0];
-    } else if (size == 4) {
+    } else if (size === 4) {
         allowableIndexes = [0, 1, 4, 5];
-    } else if (size == 5) {
+    } else if (size === 5) {
         allowableIndexes = [0, 1, 2, 5, 6, 7, 10, 11, 12];
     }
 
@@ -108,8 +109,8 @@ function checkMainDiagonail(size) {
         i = allowableIndexes[k];
         index1 = i + size + 1;
         index2 = i + 2 * (size + 1);
-        if (gameCell[i] === circle && gameCell[index1] === circle && gameCell[index2] === circle ||
-            gameCell[i] === cross && gameCell[index1] === cross && gameCell[index2] === cross) {
+        if (gameCell[i] === gameMark.circle && gameCell[index1] === gameMark.circle && gameCell[index2] === gameMark.circle ||
+            gameCell[i] === gameMark.cross && gameCell[index1] === gameMark.cross && gameCell[index2] === gameMark.cross) {
             return true;
         }
         i = allowableIndexes[k];
@@ -117,16 +118,16 @@ function checkMainDiagonail(size) {
     }
 }
 
-function checkAntiDiagonail(size) {
+function checkAntiDiagonal(size) {
     let index1;
     let index2;
     let allowableIndexes = [];
 
-    if (size == 3) {
+    if (size === 3) {
         allowableIndexes = [2];
-    } else if (size == 4) {
+    } else if (size === 4) {
         allowableIndexes = [2, 3, 6, 7];
-    } else if (size == 5) {
+    } else if (size === 5) {
         allowableIndexes = [2, 3, 4, 7, 8, 9, 12, 13, 14];
     }
 
@@ -136,8 +137,8 @@ function checkAntiDiagonail(size) {
         i = allowableIndexes[k];
         index1 = i + size - 1;
         index2 = i + 2 * (size - 1);
-        if (gameCell[i] === circle && gameCell[index1] === circle && gameCell[index2] === circle ||
-            gameCell[i] === cross && gameCell[index1] === cross && gameCell[index2] === cross) {
+        if (gameCell[i] === gameMark.circle && gameCell[index1] === gameMark.circle && gameCell[index2] === gameMark.circle ||
+            gameCell[i] === gameMark.cross && gameCell[index1] === gameMark.cross && gameCell[index2] === gameMark.cross) {
             return true;
         }
         i = allowableIndexes[k];
@@ -150,14 +151,14 @@ function isAllCellsEmpty(arr, size) {
     arr.forEach(function(item) {
         if (item) counter++;
     });
-    if (counter == size ** 2) {
+    if (counter === size ** 2) {
         return true;
     }
 }
 
 function isCellEmpty(arr, id) {
     for (let i = 0; i < arr.length; i++) {
-        if (arr[i] == id) return true;
+        if (arr[i] === id) return true;
     }
 }
 
@@ -167,13 +168,13 @@ function doStep(id) {
     }
 
     let select = document.getElementById("game-mode");
-    let mode = select.value;
-    if (mode == 1) {
+    let mode = +(select.value);
+    if (mode === 1) {
         document.getElementById('player-number').innerText = `Хід: гравець ${playerNumber}`;
         playerWithPlayerStep(id);
         isGameOver(playerNumber, mode);
-    } else if (mode == 2) {
-        playerStepWithComputer(id, cross);
+    } else if (mode === 2) {
+        playerStepWithComputer(id, gameMark.cross);
     }
 }
 
@@ -186,9 +187,9 @@ function isGameOver(playerNumber, mode) {
 }
 
 function playerStepWithComputer(id, role) {
-    if (role == cross) {
+    if (role === gameMark.cross) {
         let elem = document.getElementById(id);
-        elem.innerHTML = '<img src="./cross.png">';
+        elem.innerHTML = `<img src="./${gameMark.cross}.png">`;
         gameCellFilled.push(id);
         let i = +(id.slice(4, 6));
         gameCell[i] = role;
@@ -200,9 +201,9 @@ function playerStepWithComputer(id, role) {
 
 function playerWithPlayerStep(id) {
     let role;
-    if (lastRole == cross) {
-        role = circle;
-        document.getElementById(id).innerHTML = '<img src="./cross.png">';
+    if (lastRole === gameMark.cross) {
+        role = gameMark.circle;
+        document.getElementById(id).innerHTML = `<img src="./${gameMark.cross}.png">`;
         gameCellFilled.push(id);
         let i = +(id.slice(4, 6));
         gameCell[i] = role;
@@ -210,9 +211,9 @@ function playerWithPlayerStep(id) {
         playerNumber = 1;
         return;
     }
-    if (lastRole == circle) {
-        role = cross;
-        document.getElementById(id).innerHTML = '<img src="./circle.png">';
+    if (lastRole === gameMark.circle) {
+        role = gameMark.cross;
+        document.getElementById(id).innerHTML = `<img src="./${gameMark.circle}.png">`;
         gameCellFilled.push(id);
         let i = +(id.slice(4, 6));
         gameCell[i] = role;
@@ -223,8 +224,8 @@ function playerWithPlayerStep(id) {
 }
 
 function getWinnerMessage(playerNumber, mode) {
-    if (mode == 2) {
-        if (playerNumber == 0) {
+    if (mode === 2) {
+        if (playerNumber === 0) {
             alert("Переміг комп'ютер!");
         } else {
             alert("Переміг гравець!");
@@ -258,7 +259,7 @@ function clearGameTable() {
     gameCellFilled = [];
     gameCell = [];
     playerNumber = 2;
-    lastRole = cross;
+    lastRole = gameMark.cross;
     document.getElementById('btn-start').setAttribute('disabled', 'false');
 
     showGameArea();
