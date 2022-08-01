@@ -1,25 +1,43 @@
 'use strict'
-let gameCellFilled = [];
-let gameCell = [];
 const gameMark = {
     cross: 'cross',
     circle: 'circle'
 }
-let lastRole = gameMark.cross;
+const playerRole = {
+    computer: 0,
+    player1: 1,
+    player2: 2,
+    player: 3
+}
+const gameMode = {
+    playerWithPlayer: 1,
+    playerWithComputer: 2
+}
+
+let gameMapSize;
+let allGameCells = [];
+let occupiedGameCells = [];
 const numberOfCellsToWin = 3;
-let size;
-let playerNumber = 2; // 0 - computer
+let lastPlayerRole = gameMark.cross;
+let playerWhoMadeLastStep = playerRole.player2;
+let chosenGameMode;
+const nobodyWonFlag = -1;
 
 function showGameArea() {
     const box = document.getElementsByClassName('table-game')[0];
     box.style.visibility = 'visible';
-    let select = document.getElementById("game-area");
-    size = Number(select.value);
+    
+    let size = document.getElementById("game-area");
+    gameMapSize = +(size.value);
+
+    let mode = document.getElementById("game-mode");
+    chosenGameMode = +(mode.value);
+    
     document.getElementById('btn-start').setAttribute('disabled', 'true');
-    buildGameArea(size);
+    createGameTable(gameMapSize);
 }
 
-function buildGameArea(size) {
+function createGameTable(size) {
     const table = document.querySelector('table');
 
     for (let i = 0; i < size; i++) {
@@ -37,60 +55,64 @@ function buildGameArea(size) {
     }
 }
 
-function generateNumberOfCell(size) {
-    return (`cell${Math.floor(Math.random() * size)}`); //return id
+function generateNumberOfCellForComputerStep(size) {
+    return (`cell${Math.floor(Math.random() * size)}`);
 }
 
-function computerStep(id) {
+function doStepByComputer(id) {
     let role = gameMark.circle;
-    id = generateNumberOfCell(size * size);
+    id = generateNumberOfCellForComputerStep(gameMapSize * gameMapSize);
 
-    if (gameCellFilled.includes(id)) {
-        computerStep(generateNumberOfCell(size * size), role);
+    if (occupiedGameCells.includes(id)) {
+        doStepByComputer(generateNumberOfCellForComputerStep(gameMapSize * gameMapSize), role);
     } else {
-        playerNumber = 0;
-        gameCellFilled.push(id);
+        playerWhoMadeLastStep = 0;
+        occupiedGameCells.push(id);
 
-        document.getElementById(id).innerHTML = `<img src="./${gameMark.circle}.png">`;
+        document.getElementById(id).innerHTML = `<img src="./${gameMark.circle}.png" alt="${gameMark.circle}">`;
         let i = +(id.slice(4, 6));
-        gameCell[i] = role;
-        isGameOver(playerNumber, 2);
+        allGameCells[i] = role;
+        isGameOver(playerWhoMadeLastStep, 2);
     }
 }
 
-function checkWin() {
-    // Check for row
+function isPlayerWon() {
+
+    if (isWonInRow()) return true;
+    if (isWonInColumn()) return true;
+
+    if (isWonInMainDiagonal(gameMapSize)) return true;
+    if (isWonInAntiDiagonal(gameMapSize)) return true;
+
+    if (isAllCellsOccupied(allGameCells, gameMapSize)) {
+        return nobodyWonFlag;
+    }
+}
+
+function isWonInRow() {
     let step = 0;
     do {
-        for (let i = size - numberOfCellsToWin - step; i < (size * size); i += numberOfCellsToWin + (size - numberOfCellsToWin)) {
-            if (gameCell[i] === gameMark.circle && gameCell[i + 1] === gameMark.circle && gameCell[i + 2] === gameMark.circle ||
-                gameCell[i] === gameMark.cross && gameCell[i + 1] === gameMark.cross && gameCell[i + 2] === gameMark.cross) {
+        for (let i = gameMapSize - numberOfCellsToWin - step; i < (gameMapSize * gameMapSize); i += numberOfCellsToWin + (gameMapSize - numberOfCellsToWin)) {
+            if (allGameCells[i] === gameMark.circle && allGameCells[i + 1] === gameMark.circle && allGameCells[i + 2] === gameMark.circle ||
+                allGameCells[i] === gameMark.cross && allGameCells[i + 1] === gameMark.cross && allGameCells[i + 2] === gameMark.cross) {
                 return true;
             }
         }
         step++;
-    } while (size - numberOfCellsToWin - step >= 0);
+    } while (gameMapSize - numberOfCellsToWin - step >= 0);
+}
 
-    //Check for column
-    step = size - numberOfCellsToWin;
-    for (let i = 0; i < size * size; i++) {
-        if (gameCell[i] === gameMark.circle && gameCell[i + numberOfCellsToWin + step] === gameMark.circle && gameCell[i + 2 * (numberOfCellsToWin + step)] === gameMark.circle ||
-            gameCell[i] === gameMark.cross && gameCell[i + numberOfCellsToWin + step] === gameMark.cross && gameCell[i + 2 * (numberOfCellsToWin + step)] === gameMark.cross) {
+function isWonInColumn() {
+    let step = gameMapSize - numberOfCellsToWin;
+    for (let i = 0; i < gameMapSize * gameMapSize; i++) {
+        if (allGameCells[i] === gameMark.circle && allGameCells[i + numberOfCellsToWin + step] === gameMark.circle && allGameCells[i + 2 * (numberOfCellsToWin + step)] === gameMark.circle ||
+            allGameCells[i] === gameMark.cross && allGameCells[i + numberOfCellsToWin + step] === gameMark.cross && allGameCells[i + 2 * (numberOfCellsToWin + step)] === gameMark.cross) {
             return true;
         }
     }
-
-    //Check for diagonal
-    if (checkMainDiagonal(size)) return true;
-    if (checkAntiDiagonal(size)) return true;
-
-    // Check empty Cells
-    if (isAllCellsEmpty(gameCell, size)) {
-        setTimeout(getDrawMessage, 300);
-    }
 }
 
-function checkMainDiagonal(size) {
+function isWonInMainDiagonal(size) {
     let index1;
     let index2;
     let allowableIndexes = [];
@@ -109,8 +131,8 @@ function checkMainDiagonal(size) {
         i = allowableIndexes[k];
         index1 = i + size + 1;
         index2 = i + 2 * (size + 1);
-        if (gameCell[i] === gameMark.circle && gameCell[index1] === gameMark.circle && gameCell[index2] === gameMark.circle ||
-            gameCell[i] === gameMark.cross && gameCell[index1] === gameMark.cross && gameCell[index2] === gameMark.cross) {
+        if (allGameCells[i] === gameMark.circle && allGameCells[index1] === gameMark.circle && allGameCells[index2] === gameMark.circle ||
+            allGameCells[i] === gameMark.cross && allGameCells[index1] === gameMark.cross && allGameCells[index2] === gameMark.cross) {
             return true;
         }
         i = allowableIndexes[k];
@@ -118,7 +140,7 @@ function checkMainDiagonal(size) {
     }
 }
 
-function checkAntiDiagonal(size) {
+function isWonInAntiDiagonal(size) {
     let index1;
     let index2;
     let allowableIndexes = [];
@@ -137,8 +159,8 @@ function checkAntiDiagonal(size) {
         i = allowableIndexes[k];
         index1 = i + size - 1;
         index2 = i + 2 * (size - 1);
-        if (gameCell[i] === gameMark.circle && gameCell[index1] === gameMark.circle && gameCell[index2] === gameMark.circle ||
-            gameCell[i] === gameMark.cross && gameCell[index1] === gameMark.cross && gameCell[index2] === gameMark.cross) {
+        if (allGameCells[i] === gameMark.circle && allGameCells[index1] === gameMark.circle && allGameCells[index2] === gameMark.circle ||
+            allGameCells[i] === gameMark.cross && allGameCells[index1] === gameMark.cross && allGameCells[index2] === gameMark.cross) {
             return true;
         }
         i = allowableIndexes[k];
@@ -146,86 +168,90 @@ function checkAntiDiagonal(size) {
     }
 }
 
-function isAllCellsEmpty(arr, size) {
+function isAllCellsOccupied(arr, size) {
     let counter = 0;
-    arr.forEach(function(item) {
-        if (item) counter++;
-    });
+    arr.forEach(function(item) { if (item) counter++; });
+
     if (counter === size ** 2) {
         return true;
+    } else {
+        return false;
     }
 }
 
-function isCellEmpty(arr, id) {
+function isCellOccupied(arr, id) {
     for (let i = 0; i < arr.length; i++) {
-        if (arr[i] === id) return true;
+        if (arr[i] === id) {
+            return true;
+        }
     }
 }
 
 function doStep(id) {
-    if (isCellEmpty(gameCellFilled, id)) {
+    if (isCellOccupied(occupiedGameCells, id)) {
         return;
     }
-
-    let select = document.getElementById("game-mode");
-    let mode = +(select.value);
-    if (mode === 1) {
-        document.getElementById('player-number').innerText = `Хід: гравець ${playerNumber}`;
-        playerWithPlayerStep(id);
-        isGameOver(playerNumber, mode);
-    } else if (mode === 2) {
-        playerStepWithComputer(id, gameMark.cross);
+    if (chosenGameMode === gameMode.playerWithPlayer) {
+        document.getElementById('player-number').innerText = `Хід: гравець ${playerWhoMadeLastStep}`;
+        doStepInModePlayerWithPlayer(id);
+        isGameOver(playerWhoMadeLastStep, chosenGameMode);
+    } else if (chosenGameMode === gameMode.playerWithComputer) {
+        doStepInModePlayerWithComputer(id, gameMark.cross);
     }
 }
 
-function isGameOver(playerNumber, mode) {
-    if (checkWin()) {
-        setTimeout(getWinnerMessage, 200, playerNumber, mode);
+function isGameOver(playerNumber, gameMode) {
+    if (isPlayerWon() === nobodyWonFlag) {
+        setTimeout(getDrawMessage, 200);
         setTimeout(clearGameTable, 500);
         return true;
+    } else if (isPlayerWon()) {
+        setTimeout(getWinnerMessage, 200, playerNumber, gameMode);
+        setTimeout(clearGameTable, 500);
+        return true;
+    } else {
+        return false;
     }
 }
 
-function playerStepWithComputer(id, role) {
-    if (role === gameMark.cross) {
+function doStepInModePlayerWithComputer(id, markToFill) {
+    if (markToFill === gameMark.cross) {
         let elem = document.getElementById(id);
-        elem.innerHTML = `<img src="./${gameMark.cross}.png">`;
-        gameCellFilled.push(id);
+        elem.innerHTML = `<img src="./${gameMark.cross}.png" alt="${gameMark.cross}">`;
+        occupiedGameCells.push(id);
         let i = +(id.slice(4, 6));
-        gameCell[i] = role;
-        playerNumber = 1;
+        allGameCells[i] = markToFill;
+        playerWhoMadeLastStep = playerRole.player;
     }
-    if (isGameOver(playerNumber, 2)) return;
-    setTimeout(computerStep, 500, generateNumberOfCell(9));
-}
-
-function playerWithPlayerStep(id) {
-    let role;
-    if (lastRole === gameMark.cross) {
-        role = gameMark.circle;
-        document.getElementById(id).innerHTML = `<img src="./${gameMark.cross}.png">`;
-        gameCellFilled.push(id);
-        let i = +(id.slice(4, 6));
-        gameCell[i] = role;
-        lastRole = role;
-        playerNumber = 1;
+    if (isGameOver(playerWhoMadeLastStep, gameMode.playerWithComputer)) {
         return;
-    }
-    if (lastRole === gameMark.circle) {
-        role = gameMark.cross;
-        document.getElementById(id).innerHTML = `<img src="./${gameMark.circle}.png">`;
-        gameCellFilled.push(id);
-        let i = +(id.slice(4, 6));
-        gameCell[i] = role;
-        lastRole = role;
-        playerNumber = 2;
-        return;
+    } else if (!isGameOver(playerWhoMadeLastStep, gameMode.playerWithComputer)){
+        doStepByComputer(generateNumberOfCellForComputerStep(gameMapSize ** 2));
     }
 }
 
-function getWinnerMessage(playerNumber, mode) {
-    if (mode === 2) {
-        if (playerNumber === 0) {
+function doStepInModePlayerWithPlayer(id) {
+    occupiedGameCells.push(id);
+    let i = +(id.slice(4, 6));
+    if (lastPlayerRole === gameMark.cross) {
+        document.getElementById(id).innerHTML = `<img src="./${gameMark.cross}.png" alt="${gameMark.cross}">`;
+        allGameCells[i] = gameMark.circle;
+        lastPlayerRole = gameMark.circle;
+        playerWhoMadeLastStep = playerRole.player1;
+        return;
+    }
+    if (lastPlayerRole === gameMark.circle) {
+        document.getElementById(id).innerHTML = `<img src="./${gameMark.circle}.png" alt="${gameMark.circle}"> `;
+        allGameCells[i] = gameMark.cross;
+        lastPlayerRole = gameMark.cross;
+        playerWhoMadeLastStep = playerRole.player2;
+        return;
+    }
+}
+
+function getWinnerMessage(playerNumber, gameModeValue) {
+    if (gameModeValue === gameMode.playerWithComputer) {
+        if (playerNumber === playerRole.computer) {
             alert("Переміг комп'ютер!");
         } else {
             alert("Переміг гравець!");
@@ -237,29 +263,29 @@ function getWinnerMessage(playerNumber, mode) {
 
 function getDrawMessage() {
     alert("Нічия");
-    clearGameTable();
 }
 
 function clearGameTable() {
     let elem = document.getElementsByClassName("table")[0];
     elem.parentNode.removeChild(elem);
-    const spaceForTableGrid = document.getElementsByClassName('table-game')[0];
+
+    const spaceForGame = document.getElementsByClassName('table-game')[0];
     const table = document.createElement('table');
     table.classList.add('table');
-    spaceForTableGrid.appendChild(table);
+    spaceForGame.appendChild(table);
 
     elem = document.getElementById("player-number");
     elem.parentNode.removeChild(elem);
-    const spaceForLabelWithPlayersNumber = document.getElementsByClassName('table-game')[0];
+
     const labelWithPlayersNumber = document.createElement('p');
     labelWithPlayersNumber.id = 'player-number';
     labelWithPlayersNumber.textContent = "Хід: ...";
-    spaceForLabelWithPlayersNumber.appendChild(labelWithPlayersNumber);
+    spaceForGame.appendChild(labelWithPlayersNumber);
 
-    gameCellFilled = [];
-    gameCell = [];
-    playerNumber = 2;
-    lastRole = gameMark.cross;
+    occupiedGameCells = [];
+    allGameCells = [];
+    playerWhoMadeLastStep = 2;
+    lastPlayerRole = gameMark.cross;
     document.getElementById('btn-start').setAttribute('disabled', 'false');
 
     showGameArea();
